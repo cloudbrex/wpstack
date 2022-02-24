@@ -1,0 +1,17 @@
+---
+- hosts: all
+  pre_tasks:
+    - name: Find out the domain name
+      shell: grep "external.local" /etc/hosts | cut -d " " -f3
+      register: result
+
+    - name: Setting fact to subsequent run
+      set_fact:
+        domain_name: "{{ result.stdout }}"
+  roles:
+    - role: geerlingguy.certbot
+      ignore_errors: yes
+      tags: certbot
+
+    - role: https
+      tags: config_ssl

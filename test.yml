@@ -1,0 +1,15 @@
+---
+- hosts: all
+  tasks:
+    - name: Find out the domain name
+      shell: grep "external.local" /etc/hosts | cut -d " " -f3
+      register: domain_name
+
+    - debug:
+        var: domain_name
+
+    - debug:
+        msg: The host name of the server is {{ server_hostname }}
+
+    - name: Setting Fact
+      

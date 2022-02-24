@@ -1,0 +1,39 @@
+---
+- hosts: all
+  pre_tasks:
+    - name: Find out the domain name
+      shell: grep "external.local" /etc/hosts | cut -d " " -f3
+      register: result
+
+    - name: Setting fact to subsequent run
+      set_fact:
+        domain_name: "{{ result.stdout }}"
+  
+  roles:
+    - role: os
+      tags: os
+
+    - role: jnv.unattended-upgrades
+
+    - role: nginx
+      tags: nginx
+
+    - role: redis
+      tags: redis
+
+    - role: php
+      tags: php
+
+    - role: geerlingguy.mysql
+      tags: mariadb
+
+    - role: geerlingguy.certbot
+      ignore_errors: yes
+      tags: certbot
+
+    - role: wordpress
+      tags: wordpress
+
+  post_tasks:
+    - name: Clean up
+      import_tasks: cleanup.yml

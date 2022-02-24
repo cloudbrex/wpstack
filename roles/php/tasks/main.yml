@@ -1,0 +1,63 @@
+---
+- name: Add php repository
+  apt_repository:
+    repo: "{{ php_ppa }}"
+
+- name: Install PHP
+  apt:
+    name: "{{ item }}"
+  loop:
+    - php7.4-fpm
+    - php7.4-common
+    - php7.4-mysql
+    - php7.4-xml
+    - php7.4-xmlrpc
+    - php7.4-curl
+    - php7.4-gd
+    - php7.4-imagick
+    - php7.4-cli
+    - php7.4-dev
+    - php7.4-imap
+    - php7.4-mbstring
+    - php7.4-opcache
+    - php7.4-redis
+    - php7.4-soap
+    - php7.4-zip
+
+- name: Create PHP certs directory
+  file:
+    path: /etc/php/7.4/certs
+    state: directory
+
+- name: Download curl cacerts bundle
+  get_url:
+    url: https://curl.haxx.se/ca/cacert.pem
+    dest: /etc/php/7.4/certs/cacert.pem
+
+- name: Update PHP config for ca certs
+  lineinfile:
+    path: /etc/php/7.4/fpm/php.ini
+    regexp: '^;curl.cainfo'
+    line: 'curl.cainfo = "/etc/php/7.4/certs/cacert.pem"'
+  register: curl_cainfo
+
+- name: Update PHP config for upload_max_filesize
+  lineinfile:
+    path: /etc/php/7.4/fpm/php.ini
+    regexp: '^upload_max_filesize'
+    line: 'upload_max_filesize = 64M'
+  register: upload_max_filesize
+
+- name: Update PHP config for post_max_size
+  lineinfile:
+    path: /etc/php/7.4/fpm/php.ini
+    regexp: '^post_max_size'
+    line: 'post_max_size = 64M'
+  register: post_max_size
+
+- name: Restart phpfpm
+  systemd:
+    name: php7.4-fpm
+    state: restarted
+  when: upload_max_filesize.changed or post_max_size.changed or curl_cainfo
+

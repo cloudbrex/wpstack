@@ -1,0 +1,65 @@
+---
+- name: Check certbot certs exist
+  stat:
+    path: /etc/letsencrypt/live/{{ server_hostname }}
+  register: certbot
+  tags: [ wordpress ]
+
+- name: Permission certs so nginx can read them
+  file:
+    mode: 0774
+    path: "{{ item }}"
+    group: www-data
+    recurse: yes
+  with_items:
+    - /etc/letsencrypt/archive
+    - /etc/letsencrypt/live
+  when: certbot.stat.exists == true
+  tags: [ wordpress ]
+
+- name: Template Wordpress Nginx config for port 443
+  template:
+    src: nginx_server_443.conf.j2
+    dest: /etc/nginx/sites-available/{{ wordpress_hostname }}_443
+  register: wordpress_nginx_config
+  when: certbot.stat.exists == true
+  tags: [ wordpress ]
+
+- name: Check and see if site for port 80 is enabled
+  stat:
+    path: /etc/nginx/sites-available/{{ wordpress_hostname }}_80
+  register: site_80
+  tags: [ wordpress ]
+
+  #- debug:
+  #  var: site_80
+
+- name: Disable site for port 80
+  file:
+    path: /etc/nginx/sites-enabled/{{ wordpress_hostname }}
+    state: absent
+  #when: 
+  #  - site_80.stat.exists == true
+  #  - wordpress_nginx_config.changed 
+  register: site_80_exists
+  tags: [ wordpress ]
+
+- name: Enable site for port 443
+  file:
+    src: /etc/nginx/sites-available/{{ wordpress_hostname }}_443
+    dest: /etc/nginx/sites-enabled/{{ wordpress_hostname }}
+    state: link
+  register: site_link
+  #when: 
+  #  - site_80_exists.changed
+  #  - wordpress_nginx_config.changed
+  ignore_errors: true
+  tags: [ wordpress ]
+
+- name: Reload nginx
+  systemd:
+    name: nginx
+    state: reloaded
+  when: site_link.changed
+  ignore_errors: true
+  tags: [ wordpress ]
