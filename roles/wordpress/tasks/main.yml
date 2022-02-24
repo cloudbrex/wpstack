@@ -1,28 +1,28 @@
 ---
 - name: Remove default site
   file:
-    path: /etc/nginx/sites-enabled/default
+    path: '/etc/nginx/sites-enabled/default'
     state: absent
 
 - name: Create installed directories
   file:
     state: directory
-    path: "{{ item }}"
+    path: '{{ item }}'
   loop:
-    - "{{ wordpress_root }}"
-    - "{{ wordpress_page_cache_path }}"
+    - '{{ wordpress_root }}'
+    - '{{ wordpress_page_cache_path }}'
   tags: [ wordpress ]
 
 - name: Check certbot certs exist
   stat:
-    path: /etc/letsencrypt/live/{{ wordpress_hostname }}
+    path: '/etc/letsencrypt/live/{{ wordpress_hostname }}'
   register: certbot
   tags: [ wordpress ]
 
 - name: Permission certs so nginx can read them
   file:
     mode: 0774
-    path: "{{ item }}"
+    path: '{{ item }}'
     group: www-data
     recurse: yes
   with_items:
@@ -33,21 +33,21 @@
 
 - name: Download and unpack latest WordPress
   unarchive:
-    src: https://wordpress.org/latest.tar.gz
-    dest: "{{ wordpress_root }}"
+    src: 'https://wordpress.org/latest.tar.gz'
+    dest: '{{ wordpress_root }}'
     remote_src: yes
-    creates: "{{ wordpress_install_path }}"
+    creates: '{{ wordpress_install_path }}'
   tags: [ wordpress ]
 
 - name: Set up wp-config
   template:
-    src: "wp-config.php.j2"
-    dest: "{{ wordpress_install_path }}/wp-config.php"
+    src: 'wp-config.php.j2'
+    dest: '{{ wordpress_install_path }}/wp-config.php'
   tags: [ wordpress ] 
 
 - name: Set ownership
   file:
-    path: "{{ wordpress_root }}"
+    path: '{{ wordpress_root }}'
     state: directory
     recurse: yes
     owner: www-data
@@ -55,43 +55,41 @@
   tags: [ wordpress ]
 
 - name: Set permissions for directories
-  shell: "/usr/bin/find {{ wordpress_install_path }}/ -type d -exec chmod 755 {} \\;"
+  shell: '/usr/bin/find {{ wordpress_install_path }}/ -type d -exec chmod 755 {} \\;'
   tags: [ wordpress ]
 
 - name: Set permissions for files
-  shell: "/usr/bin/find {{ wordpress_install_path }}/ -type f -exec chmod 644 {} \\;"
+  shell: '/usr/bin/find {{ wordpress_install_path }}/ -type f -exec chmod 644 {} \\;'
   tags: [ wordpress ]
 
 - name: Template Wordpress Nginx config for port 80
   template:
-    src: nginx_server.conf.j2
-    dest: /etc/nginx/sites-available/{{ wordpress_hostname }}_80
+    src: 'nginx_server.conf.j2'
+    dest: '/etc/nginx/sites-available/{{ wordpress_hostname }}_80'
   when: certbot.stat.exists == false
   tags: [ wordpress ]
 
 - name: Template Wordpress Nginx config for port 443
   template:
-    src: nginx_server_443.conf.j2
-    dest: /etc/nginx/sites-available/{{ wordpress_hostname }}_443
+    src: 'nginx_server_443.conf.j2'
+    dest: '/etc/nginx/sites-available/{{ wordpress_hostname }}_443'
   when: certbot.stat.exists == true
   tags: [ wordpress ]
 
 - name: Enable site for port 80
   file:
-    src: /etc/nginx/sites-available/{{ wordpress_hostname }}_80
-    dest: /etc/nginx/sites-enabled/{{ wordpress_hostname }}
+    src: '/etc/nginx/sites-available/{{ wordpress_hostname }}_80'
+    dest: '/etc/nginx/sites-enabled/{{ wordpress_hostname }}'
     state: link
-    force: yes
   when: certbot.stat.exists == false
   notify: Reload Nginx
   tags: [ wordpress ]
 
 - name: Enable site for port 443
   file:
-    src: /etc/nginx/sites-available/{{ wordpress_hostname }}_443
-    dest: /etc/nginx/sites-enabled/{{ wordpress_hostname }}
+    src: '/etc/nginx/sites-available/{{ wordpress_hostname }}_443'
+    dest: '/etc/nginx/sites-enabled/{{ wordpress_hostname }}'
     state: link
-    force: yes
   when: certbot.stat.exists == true
   notify: Reload Nginx
   tags: [ wordpress ]
@@ -109,7 +107,7 @@
 #           6439303337636439610a373636643532393437666263303462303130646136626262646331616535
 #           33346566363966363430356631333932386438386461303766363265396434656533
 #     from: hello@vpsnest.com
-#     to: "{{ customer_email }}" 
+#     to: '{{ customer_email }}' 
 #     subject: test email
 #     body: |
 #       Congratulations, WordPress is installed!!
