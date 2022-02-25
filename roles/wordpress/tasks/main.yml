@@ -40,7 +40,7 @@
   tags: [ wordpress ]
 
 - name: what is wordpress install path
-  debug: var={{ wordpress_install_path }}
+  debug: var="{{ wordpress_install_path }}"
 
 - name: Set up wp-config
   template:
