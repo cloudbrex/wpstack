@@ -8,6 +8,7 @@
   file:
     state: directory
     path: "{{ item }}"
+  debug: msg: "{{ item }}"
   loop:
     - "{{ wordpress_root }}"
     - "{{ wordpress_page_cache_path }}"
@@ -38,9 +39,6 @@
     remote_src: yes
     creates: '{{ wordpress_install_path }}'
   tags: [ wordpress ]
-
-- name: what is wordpress install path
-  debug: var="{{ wordpress_install_path }}"
 
 - name: Set up wp-config
   template:
