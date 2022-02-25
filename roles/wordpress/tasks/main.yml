@@ -39,6 +39,9 @@
     creates: '{{ wordpress_install_path }}'
   tags: [ wordpress ]
 
+- name: what is wordpress install path
+  debug: var={{ wordpress_install_path }}
+
 - name: Set up wp-config
   template:
     src: "wp-config.php.j2"
