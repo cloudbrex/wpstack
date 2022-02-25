@@ -16,7 +16,7 @@
 
 - name: print 
   debug:
-    msg: "{{ items }}"
+    msg: "{{ item }}"
   loop: "{{ dir.results }}"
 
 - name: Check certbot certs exist
