@@ -33,10 +33,10 @@
 
 - name: Download and unpack latest WordPress
   unarchive:
-    src: "https://wordpress.org/latest.tar.gz"
-    dest: "{{ wordpress_root }}"
+    src: https://wordpress.org/latest.tar.gz
+    dest: {{ wordpress_root }}
     remote_src: yes
-    creates: "{{ wordpress_install_path }}"
+    creates: {{ wordpress_install_path }}
   tags: [ wordpress ]
 
 - name: Set up wp-config
