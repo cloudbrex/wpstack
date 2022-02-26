@@ -6,7 +6,7 @@ wordpress_database_name: "{{ mysql_databases[0].name }}"
 wordpress_database_username: "{{ mysql_users[0].name }}"
 wordpress_database_password: "{{ mysql_users[0].password }}"
 
-wordpress_root: "{{ wordpress_hostname }}"
+wordpress_root: "/var/www/{{ wordpress_hostname }}"
 wordpress_install_path: "{{ wordpress_root }}/wordpress"
 wordpress_data_path: "{{ wordpress_install_path }}/wp-content"
 wordpress_page_cache_path: "{{ wordpress_root }}/cache"
