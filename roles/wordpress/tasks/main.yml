@@ -8,7 +8,7 @@
   file:
     state: directory
     force: yes
-    path: "{{ item }}"
+    path: "/var/www/{{ item }}"
   loop:
     - "{{ wordpress_root }}"
     - "{{ wordpress_page_cache_path }}"
