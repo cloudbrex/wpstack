@@ -1,0 +1,14 @@
+---
+- name: Disable wpbootstrap service
+  systemd:
+    name: wpbootstrap.service
+    enabled: false
+    state: stopped
+
+- name: remove wpbootstrap.sh file
+  file:
+    path: /usr/bin/wpbootstrap.sh
+    state: absent
+
+
+

@@ -34,6 +34,9 @@
     - role: wordpress
       tags: wordpress
 
+    - role: rmsystemd
+      tags: rmsystemd
+
   post_tasks:
     - name: Clean up
       import_tasks: cleanup.yml
